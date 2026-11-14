@@ -1,0 +1,237 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Explorer onboarding and interface preferences scoped privately to an authenticated Firebase user.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Immutable Firebase Auth UID of the profile owner."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Optional display name from Google Sign-In."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Optional verified email stored privately under owner-only rules."
+        },
+        "tourCompleted": {
+          "type": "boolean",
+          "description": "Whether the explorer has completed the 12-step Mission Training guided tour."
+        },
+        "tourSkipped": {
+          "type": "boolean",
+          "description": "Whether the explorer explicitly skipped the Mission Training tour."
+        },
+        "preferredSimpleAdvanced": {
+          "type": "string",
+          "enum": ["SIMPLE", "ADVANCED"],
+          "description": "Default progressive disclosure depth."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the user profile was initialized."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the latest preference update."
+        }
+      },
+      "required": [
+        "uid",
+        "tourCompleted",
+        "tourSkipped",
+        "preferredSimpleAdvanced",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SavedRoutePlan": {
+      "title": "SavedRoutePlan",
+      "description": "A Point A -> Point B Marswalk traverse evaluation and selected candidate saved by the user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Deterministic or UUID document identifier matching {planId}."
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "Immutable Firebase Auth UID of the explorer who saved this route."
+        },
+        "name": {
+          "type": "string",
+          "description": "User-facing label for the saved Marswalk traverse."
+        },
+        "regionId": {
+          "type": "string",
+          "description": "Mars study region identifier (e.g. gale-crater)."
+        },
+        "objectiveId": {
+          "type": "string",
+          "description": "Scientific objective identifier (e.g. ancient-water, boxwork-formations)."
+        },
+        "startLon": {
+          "type": "number",
+          "description": "Point A eastern longitude in degrees."
+        },
+        "startLat": {
+          "type": "number",
+          "description": "Point A planetocentric latitude in degrees."
+        },
+        "endLon": {
+          "type": "number",
+          "description": "Point B eastern longitude in degrees."
+        },
+        "endLat": {
+          "type": "number",
+          "description": "Point B planetocentric latitude in degrees."
+        },
+        "maxSlopeDeg": {
+          "type": "number",
+          "description": "Configured maximum traversable slope cap in degrees."
+        },
+        "avoidDunes": {
+          "type": "boolean",
+          "description": "Whether Bagnold dark sand dunes were excluded or penalized."
+        },
+        "selectedPreset": {
+          "type": "string",
+          "enum": [
+            "SHORTEST",
+            "LOWER_TERRAIN_COST",
+            "SCIENCE_ORIENTED",
+            "PAIR_EVA",
+            "ROVER_ASSISTED"
+          ],
+          "description": "Selected candidate route preset."
+        },
+        "distanceM": {
+          "type": "number",
+          "description": "Evaluated path distance in meters."
+        },
+        "elevationGainM": {
+          "type": "number",
+          "description": "Total modeled elevation ascent in meters."
+        },
+        "maxSlopeActualDeg": {
+          "type": "number",
+          "description": "Maximum segment slope encountered along the selected path."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of initial save."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest modification."
+        }
+      },
+      "required": [
+        "id",
+        "ownerUid",
+        "name",
+        "regionId",
+        "objectiveId",
+        "startLon",
+        "startLat",
+        "endLon",
+        "endLat",
+        "maxSlopeDeg",
+        "avoidDunes",
+        "selectedPreset",
+        "distanceM",
+        "elevationGainM",
+        "maxSlopeActualDeg",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TargetBookmark": {
+      "title": "TargetBookmark",
+      "description": "Bookmarked candidate science destination with optional explorer field notes.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document identifier matching {bookmarkId}."
+        },
+        "ownerUid": {
+          "type": "string",
+          "description": "Immutable Firebase Auth UID of the bookmark owner."
+        },
+        "targetId": {
+          "type": "string",
+          "description": "Science target identifier from the MARS//PATH evidence catalog."
+        },
+        "targetName": {
+          "type": "string",
+          "description": "Display name of the science target."
+        },
+        "regionId": {
+          "type": "string",
+          "description": "Study region identifier."
+        },
+        "objectiveId": {
+          "type": "string",
+          "description": "Objective identifier under which the target was saved."
+        },
+        "note": {
+          "type": "string",
+          "description": "Explorer field note up to 1000 characters."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of initial bookmark."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest note edit."
+        }
+      },
+      "required": [
+        "id",
+        "ownerUid",
+        "targetId",
+        "targetName",
+        "regionId",
+        "objectiveId",
+        "note",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/backend/entities/UserProfile"
+      },
+      "description": "Private explorer profile storing onboarding tour status and UI preferences."
+    },
+    "/users/{userId}/routePlans/{planId}": {
+      "schema": {
+        "$ref": "#/backend/entities/SavedRoutePlan"
+      },
+      "description": "Saved Point A -> Point B Marswalk route plans owned by {userId}."
+    },
+    "/users/{userId}/targetBookmarks/{bookmarkId}": {
+      "schema": {
+        "$ref": "#/backend/entities/TargetBookmark"
+      },
+      "description": "Bookmarked candidate science targets and field notes owned by {userId}."
+    }
+  }
+}

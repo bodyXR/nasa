@@ -1,0 +1,49 @@
+{
+  "name": "mars-path",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "predev": "[ -d node_modules/.bin ] || bun install || npm install",
+    "dev": "tsx server.ts",
+    "prebuild": "[ -d node_modules/.bin ] || bun install || npm install",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server.ts",
+    "preview": "vite preview",
+    "prelint": "[ -d node_modules/.bin ] || bun install || npm install",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@firebase/eslint-plugin-security-rules": "^0.0.2",
+    "@google/genai": "^2.4.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/google.maps": "^3.66.10",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "@vis.gl/react-google-maps": "^1.10.2",
+    "@vitejs/plugin-react": "^6.3.0",
+    "cors": "^2.8.6",
+    "eslint": "^10.15.0",
+    "express": "^5.3.0",
+    "firebase": "^13.3.0",
+    "lucide-react": "^1.72.0",
+    "maplibre-gl": "^6.18.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.5",
+    "three": "^0.187.0",
+    "tsx": "^4.23.15",
+    "vite": "^8.3.0",
+    "vitest": "^5.1.0",
+    "zod": "^4.6.7",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "^7.0.2"
+  }
+}

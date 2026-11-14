@@ -1,0 +1,8 @@
+{
+  "name": "Remix MARS//PATH — Martian Surface \u0026 Marswalk Planner",
+  "description": "Data-fusion planetary atlas and Marswalk decision-support system integrating NASA Mars Trek, USGS geology, MRO CRISM/CTX/HiRISE, Odyssey THEMIS, and Curiosity rover observations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

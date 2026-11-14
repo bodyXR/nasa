@@ -1,0 +1,497 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+@layer base {
+  :root {
+    /* Core Surface & Ink Tokens (60% void, 30% structural flat surfaces, 10% Mars accents) */
+    --mp-bg: #07080A;
+    --mp-surface: #111317;
+    --mp-surface-raised: #171A20;
+    --mp-surface-recessed: #0B0D10;
+    --mp-border: #242832;
+    --mp-border-strong: #373D4B;
+    --mp-specular: rgba(247, 243, 235, 0.045);
+
+    --mp-text: #EAE4D9;
+    --mp-text-strong: #F7F3EB;
+    --mp-text-muted: #9D968A;
+    --mp-text-dim: #736D63;
+
+    /* Semantic Mars & Scientific Tokens */
+    --mp-mars-red: #C44D2B;
+    --mp-mars-rust: #9E3B20;
+    --mp-sand: #D4B483;
+    --mp-ochre: #D98A4E;
+    --mp-slate-blue: #5B8BB4;
+    --mp-sage: #5E9C76;
+
+    /* Typography */
+    --font-serif: "Fraunces", Georgia, serif;
+    --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Radius & Elevation */
+    --mp-radius-sm: 2px;
+    --mp-radius-md: 4px;
+
+    /* Motion Timing */
+    --mp-ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+    --mp-dur-micro: 180ms;
+    --mp-dur-panel: 320ms;
+    --mp-dur-story: 520ms;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--mp-bg);
+    color: var(--mp-text);
+    font-family: var(--font-sans);
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--mp-sand);
+    outline-offset: 2px;
+  }
+}
+
+.font-editorial {
+  font-family: var(--font-serif);
+  text-wrap: balance;
+}
+
+.font-telemetry {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Calibrated Planetary Instrument Surfaces & Micro-Frames
+   ========================================================================== */
+
+.mp-instrument-panel {
+  background-color: var(--mp-surface);
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-radius-sm);
+  box-shadow: inset 0 1px 0 0 var(--mp-specular);
+}
+
+.mp-surface-raised {
+  background-color: var(--mp-surface-raised);
+  border: 1px solid var(--mp-border-strong);
+  border-radius: var(--mp-radius-sm);
+  box-shadow: inset 0 1px 0 0 var(--mp-specular);
+}
+
+.mp-surface-recessed {
+  background-color: var(--mp-surface-recessed);
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-radius-sm);
+}
+
+/* Precision reticle corner ticks for hero intro & active telemetry cards */
+.mp-reticle-frame {
+  position: relative;
+}
+.mp-reticle-frame::before,
+.mp-reticle-frame::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  border-color: var(--mp-sand);
+  opacity: 0.55;
+}
+.mp-reticle-frame::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.mp-reticle-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Subtle coordinate grid backdrop for recessed analytical containers */
+.mp-topo-grid {
+  background-color: var(--mp-surface-recessed);
+  background-image:
+    linear-gradient(to right, rgba(212, 180, 131, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 180, 131, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Calibrated metric readouts */
+.mp-metric-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--mp-text-strong);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.mp-metric-unit {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--mp-text-muted);
+  margin-left: 3px;
+}
+
+/* Hairline section rule */
+.mp-hairline {
+  height: 1px;
+  background: linear-gradient(90deg, var(--mp-border-strong) 0%, var(--mp-border) 65%, transparent 100%);
+}
+
+/* ==========================================================================
+   Navigation & Instrument Spine Controls
+   ========================================================================== */
+
+.mp-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 2px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--mp-text-muted);
+  transition: color var(--mp-dur-micro) var(--mp-ease-settle);
+}
+.mp-nav-link:hover {
+  color: var(--mp-text-strong);
+}
+.mp-nav-link[data-active="true"] {
+  color: var(--mp-text-strong);
+}
+.mp-nav-link[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--mp-mars-red);
+}
+
+.mp-spine-btn {
+  width: 44px;
+  min-height: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: var(--mp-radius-sm);
+  border: 1px solid transparent;
+  color: var(--mp-text-muted);
+  transition:
+    background-color var(--mp-dur-micro) var(--mp-ease-settle),
+    border-color var(--mp-dur-micro) var(--mp-ease-settle),
+    color var(--mp-dur-micro) var(--mp-ease-settle);
+}
+.mp-spine-btn:hover {
+  background-color: var(--mp-surface-raised);
+  border-color: var(--mp-border);
+  color: var(--mp-text-strong);
+}
+.mp-spine-btn[data-active="true"] {
+  background-color: var(--mp-surface-raised);
+  border-color: var(--mp-sand);
+  color: var(--mp-text-strong);
+}
+
+/* ==========================================================================
+   Interactive Controls (Segmented Rails, Buttons, Sliders, Checkboxes)
+   ========================================================================== */
+
+.mp-segmented {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--mp-bg);
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.mp-segmented-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-radius: 1px;
+  transition:
+    background-color var(--mp-dur-micro) var(--mp-ease-settle),
+    color var(--mp-dur-micro) var(--mp-ease-settle),
+    border-color var(--mp-dur-micro) var(--mp-ease-settle);
+}
+
+.mp-btn-primary {
+  background-color: var(--mp-mars-red);
+  border: 1px solid var(--mp-mars-red);
+  color: var(--mp-text-strong);
+  border-radius: var(--mp-radius-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition:
+    background-color var(--mp-dur-micro) var(--mp-ease-settle),
+    border-color var(--mp-dur-micro) var(--mp-ease-settle),
+    transform var(--mp-dur-micro) var(--mp-ease-settle);
+}
+.mp-btn-primary:hover:not(:disabled) {
+  background-color: var(--mp-mars-rust);
+  border-color: var(--mp-mars-rust);
+}
+.mp-btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.mp-btn-secondary {
+  background-color: var(--mp-surface-recessed);
+  border: 1px solid var(--mp-border);
+  color: var(--mp-text);
+  border-radius: var(--mp-radius-sm);
+  box-shadow: inset 0 1px 0 var(--mp-specular);
+  transition:
+    background-color var(--mp-dur-micro) var(--mp-ease-settle),
+    border-color var(--mp-dur-micro) var(--mp-ease-settle),
+    color var(--mp-dur-micro) var(--mp-ease-settle),
+    transform var(--mp-dur-micro) var(--mp-ease-settle);
+}
+.mp-btn-secondary:hover:not(:disabled) {
+  background-color: var(--mp-surface-raised);
+  border-color: var(--mp-sand);
+  color: var(--mp-text-strong);
+}
+.mp-btn-secondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Precision Range Scrubber */
+input[type="range"].mp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].mp-range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: var(--mp-border-strong);
+  border-radius: 1px;
+}
+input[type="range"].mp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 14px;
+  margin-top: -5.5px;
+  background: var(--mp-sand);
+  border: 1px solid var(--mp-bg);
+  border-radius: 1px;
+  transition: background-color var(--mp-dur-micro) var(--mp-ease-settle), transform var(--mp-dur-micro) var(--mp-ease-settle);
+}
+input[type="range"].mp-range:hover::-webkit-slider-thumb {
+  background: var(--mp-text-strong);
+}
+input[type="range"].mp-range::-moz-range-track {
+  height: 3px;
+  background: var(--mp-border-strong);
+  border-radius: 1px;
+}
+input[type="range"].mp-range::-moz-range-thumb {
+  width: 10px;
+  height: 14px;
+  background: var(--mp-sand);
+  border: 1px solid var(--mp-bg);
+  border-radius: 1px;
+}
+
+/* Precision Square Checkbox */
+input[type="checkbox"].mp-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--mp-border-strong);
+  background-color: var(--mp-bg);
+  border-radius: 1px;
+  display: inline-grid;
+  place-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color var(--mp-dur-micro) var(--mp-ease-settle), background-color var(--mp-dur-micro) var(--mp-ease-settle);
+}
+input[type="checkbox"].mp-checkbox::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background-color: var(--mp-text-strong);
+  transform: scale(0);
+  transition: transform 120ms var(--mp-ease-settle);
+}
+input[type="checkbox"].mp-checkbox:checked {
+  background-color: var(--mp-mars-red);
+  border-color: var(--mp-mars-red);
+}
+input[type="checkbox"].mp-checkbox:checked::before {
+  transform: scale(1);
+}
+
+/* ==========================================================================
+   Scrollbars & Panel Motion
+   ========================================================================== */
+
+.mp-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.mp-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mp-scroll::-webkit-scrollbar-thumb {
+  background: #2D323E;
+  border-radius: 2px;
+}
+.mp-scroll::-webkit-scrollbar-thumb:hover {
+  background: #444B5C;
+}
+
+@keyframes mpSettleIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes mpMarkerAcquire {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mp-settle-in {
+  animation: mpSettleIn var(--mp-dur-panel) var(--mp-ease-settle) both;
+}
+
+.mp-slide-left {
+  animation: mpSlideInLeft var(--mp-dur-panel) var(--mp-ease-settle) both;
+}
+
+.mp-marker-appear {
+  animation: mpMarkerAcquire 280ms var(--mp-ease-settle) both;
+}
+
+@keyframes mpPulseAnalyzing {
+  0%, 100% {
+    opacity: 1;
+    border-color: var(--mp-sand);
+  }
+  50% {
+    opacity: 0.65;
+    border-color: var(--mp-ochre);
+  }
+}
+
+.mp-analyzing-pulse {
+  animation: mpPulseAnalyzing 1.4s ease-in-out infinite;
+}
+
+.mp-panel-transition {
+  transition:
+    transform var(--mp-dur-panel) var(--mp-ease-settle),
+    opacity var(--mp-dur-panel) var(--mp-ease-settle);
+}
+
+/* MapLibre control integration */
+.maplibregl-ctrl-attrib {
+  background: rgba(7, 8, 10, 0.88) !important;
+  color: #9D968A !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  border-top: 1px solid #242832;
+  border-right: 1px solid #242832;
+}
+.maplibregl-ctrl-attrib a {
+  color: #D4B483 !important;
+}
+.maplibregl-ctrl-group {
+  background: #111317 !important;
+  border: 1px solid #242832 !important;
+  border-radius: 2px !important;
+  box-shadow: inset 0 1px 0 rgba(247, 243, 235, 0.045) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid #242832 !important;
+}
+.maplibregl-ctrl-group button span {
+  filter: invert(0.9);
+}
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

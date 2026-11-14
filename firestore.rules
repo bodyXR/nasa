@@ -1,0 +1,234 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.matches('^[a-zA-Z0-9_-]{1,128}$');
+    }
+
+    function isFiniteCoord(lon, lat) {
+      return lon is number
+        && lat is number
+        && lon >= -180
+        && lon <= 180
+        && lat >= -90
+        && lat <= 90;
+    }
+
+    function isValidPreset(preset) {
+      return preset in [
+        'SHORTEST',
+        'LOWER_TERRAIN_COST',
+        'SCIENCE_ORIENTED',
+        'PAIR_EVA',
+        'ROVER_ASSISTED'
+      ];
+    }
+
+    function isValidUserProfileCreate(data, userId) {
+      return data.keys().hasAll([
+          'uid',
+          'tourCompleted',
+          'tourSkipped',
+          'preferredSimpleAdvanced',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid',
+          'displayName',
+          'email',
+          'tourCompleted',
+          'tourSkipped',
+          'preferredSimpleAdvanced',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.uid == userId
+        && data.tourCompleted is bool
+        && data.tourSkipped is bool
+        && data.preferredSimpleAdvanced in ['SIMPLE', 'ADVANCED']
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 160))
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidUserProfileUpdate(data, existing) {
+      return data.diff(existing).affectedKeys().hasOnly([
+          'displayName',
+          'tourCompleted',
+          'tourSkipped',
+          'preferredSimpleAdvanced',
+          'updatedAt'
+        ])
+        && data.uid == existing.uid
+        && data.createdAt == existing.createdAt
+        && data.tourCompleted is bool
+        && data.tourSkipped is bool
+        && data.preferredSimpleAdvanced in ['SIMPLE', 'ADVANCED']
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100))
+        && data.updatedAt == request.time;
+    }
+
+    function isValidRoutePlanCreate(data, userId, planId) {
+      return isValidId(planId)
+        && data.keys().hasAll([
+          'id',
+          'ownerUid',
+          'name',
+          'regionId',
+          'objectiveId',
+          'startLon',
+          'startLat',
+          'endLon',
+          'endLat',
+          'maxSlopeDeg',
+          'avoidDunes',
+          'selectedPreset',
+          'distanceM',
+          'elevationGainM',
+          'maxSlopeActualDeg',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerUid',
+          'name',
+          'regionId',
+          'objectiveId',
+          'startLon',
+          'startLat',
+          'endLon',
+          'endLat',
+          'maxSlopeDeg',
+          'avoidDunes',
+          'selectedPreset',
+          'distanceM',
+          'elevationGainM',
+          'maxSlopeActualDeg',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id == planId
+        && data.ownerUid == userId
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.regionId is string && data.regionId.size() >= 1 && data.regionId.size() <= 64
+        && data.objectiveId is string && data.objectiveId.size() >= 1 && data.objectiveId.size() <= 64
+        && isFiniteCoord(data.startLon, data.startLat)
+        && isFiniteCoord(data.endLon, data.endLat)
+        && data.maxSlopeDeg is number && data.maxSlopeDeg >= 5 && data.maxSlopeDeg <= 45
+        && data.avoidDunes is bool
+        && isValidPreset(data.selectedPreset)
+        && data.distanceM is number && data.distanceM >= 0 && data.distanceM <= 500000
+        && data.elevationGainM is number && data.elevationGainM >= 0 && data.elevationGainM <= 50000
+        && data.maxSlopeActualDeg is number && data.maxSlopeActualDeg >= 0 && data.maxSlopeActualDeg <= 90
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidRoutePlanUpdate(data, existing) {
+      return data.diff(existing).affectedKeys().hasOnly([
+          'name',
+          'maxSlopeDeg',
+          'avoidDunes',
+          'selectedPreset',
+          'distanceM',
+          'elevationGainM',
+          'maxSlopeActualDeg',
+          'updatedAt'
+        ])
+        && data.id == existing.id
+        && data.ownerUid == existing.ownerUid
+        && data.createdAt == existing.createdAt
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.maxSlopeDeg is number && data.maxSlopeDeg >= 5 && data.maxSlopeDeg <= 45
+        && data.avoidDunes is bool
+        && isValidPreset(data.selectedPreset)
+        && data.distanceM is number && data.distanceM >= 0 && data.distanceM <= 500000
+        && data.elevationGainM is number && data.elevationGainM >= 0 && data.elevationGainM <= 50000
+        && data.maxSlopeActualDeg is number && data.maxSlopeActualDeg >= 0 && data.maxSlopeActualDeg <= 90
+        && data.updatedAt == request.time;
+    }
+
+    function isValidBookmarkCreate(data, userId, bookmarkId) {
+      return isValidId(bookmarkId)
+        && data.keys().hasAll([
+          'id',
+          'ownerUid',
+          'targetId',
+          'targetName',
+          'regionId',
+          'objectiveId',
+          'note',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerUid',
+          'targetId',
+          'targetName',
+          'regionId',
+          'objectiveId',
+          'note',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id == bookmarkId
+        && data.ownerUid == userId
+        && data.targetId is string && data.targetId.size() >= 1 && data.targetId.size() <= 128
+        && data.targetName is string && data.targetName.size() >= 1 && data.targetName.size() <= 160
+        && data.regionId is string && data.regionId.size() >= 1 && data.regionId.size() <= 64
+        && data.objectiveId is string && data.objectiveId.size() >= 1 && data.objectiveId.size() <= 64
+        && data.note is string && data.note.size() <= 1000
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidBookmarkUpdate(data, existing) {
+      return data.diff(existing).affectedKeys().hasOnly(['note', 'updatedAt'])
+        && data.id == existing.id
+        && data.ownerUid == existing.ownerUid
+        && data.createdAt == existing.createdAt
+        && data.note is string && data.note.size() <= 1000
+        && data.updatedAt == request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfileCreate(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidUserProfileUpdate(request.resource.data, resource.data);
+      allow delete: if isOwner(userId);
+
+      match /routePlans/{planId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId) && request.query.limit != null && request.query.limit <= 100;
+        allow create: if isOwner(userId) && isValidRoutePlanCreate(request.resource.data, userId, planId);
+        allow update: if isOwner(userId) && isValidRoutePlanUpdate(request.resource.data, resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /targetBookmarks/{bookmarkId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId) && request.query.limit != null && request.query.limit <= 100;
+        allow create: if isOwner(userId) && isValidBookmarkCreate(request.resource.data, userId, bookmarkId);
+        allow update: if isOwner(userId) && isValidBookmarkUpdate(request.resource.data, resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
